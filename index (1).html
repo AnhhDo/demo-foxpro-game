@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fox App</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body{
+      margin:0; padding:16px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      display:flex; justify-content:center;
+    }
+
+    .app {
+      width: 1024px;
+      height: 1820px;
+      position: relative;
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      background-image: url("assets/room_1.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    video {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 70%;
+      height: auto;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 16px;
+      background: transparent;
+    }
+
+    .score {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(6px);
+      font-weight: 700;
+      user-select: none;
+      z-index: 10;
+    }
+
+    .png-btn{
+      position:absolute;
+      right: 18px;
+      bottom: 120px;
+      width: 140px;
+      height: 140px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      transform: translateZ(0);
+      z-index: 10;
+    }
+
+    .png-btn img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display:block;
+      pointer-events:none;
+    }
+
+    .png-btn.pressed{
+      animation: pressPop 180ms ease-out;
+    }
+    @keyframes pressPop{
+      0%   { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
+      60%  { transform: scale(0.92); filter: drop-shadow(0 0 18px rgba(255,255,255,.35)); }
+      100% { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
+    }
+
+    .float-plus {
+      position: absolute;
+      right: 60px;
+      bottom: 240px;
+      font-weight: 800;
+      font-size: 26px;
+      color: #fff;
+      text-shadow: 0 6px 18px rgba(0,0,0,.55);
+      pointer-events: none;
+      user-select: none;
+      animation: floatUp 650ms ease-out forwards;
+      z-index: 10;
+    }
+    @keyframes floatUp{
+      0%   { transform: translateY(0) scale(0.95); opacity: 0; }
+      15%  { opacity: 1; }
+      100% { transform: translateY(-70px) scale(1.08); opacity: 0; }
+    }
+
+    .controls{
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:12px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:10px;
+      border-radius:12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+
+    button{
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:transparent;
+      cursor:pointer;
+      color:inherit;
+    }
+    button:hover{ opacity:.9; }
+
+    label{ font-size:12px; opacity:.9; }
+    input[type="range"]{ width: 160px; }
+    .spacer{ flex: 1; }
+
+    @media (max-width: 1100px){
+      .app { transform: scale(.55); transform-origin: top center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app" id="app">
+    <div class="bg"></div>
+
+    <div class="score">Điểm cáo: <span id="scoreVal">0</span></div>
+
+    <!-- 1 video gộp 20s -->
+    <video id="foxVideo" src="./assets/FoxTrue.webm" autoplay muted playsinline preload="auto"></video>
+
+    <button class="png-btn" id="pointBtn" aria-label="Cộng điểm">
+      <img src="./assets/Buton.png" alt="Cộng điểm" />
+    </button>
+
+    <div class="controls">
+      <button id="playBtn">Play</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="toggleMuteBtn">Mute/Unmute</button>
+      <div class="spacer"></div>
+
+      <div>
+        <label>Size</label><br>
+        <input id="size" type="range" min="10" max="150" value="70">
+      </div>
+      <div>
+        <label>X</label><br>
+        <input id="posX" type="range" min="-50" max="50" value="0">
+      </div>
+      <div>
+        <label>Y</label><br>
+        <input id="posY" type="range" min="-50" max="50" value="0">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const app = document.getElementById('app');
+    const video = document.getElementById('foxVideo');
+
+    const size = document.getElementById('size');
+    const posX = document.getElementById('posX');
+    const posY = document.getElementById('posY');
+
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const toggleMuteBtn = document.getElementById('toggleMuteBtn');
+
+    const scoreVal = document.getElementById('scoreVal');
+    const pointBtn = document.getElementById('pointBtn');
+
+    let score = 0;
+    let muted = true;
+
+    function spawnPlus10() {
+      const el = document.createElement('div');
+      el.className = 'float-plus';
+      el.textContent = '+10';
+      app.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+    function pressEffect() {
+      pointBtn.classList.remove('pressed');
+      void pointBtn.offsetWidth;
+      pointBtn.classList.add('pressed');
+    }
+
+    // ===== TIMELINE (20s, mỗi đoạn 5s) =====
+    const A0 = 0.0,  A1 = 5.0;   // 0-5
+    const B0 = 5.0,  B1 = 10.0;  // 5-10
+    const C0 = 10.0, C1 = 15.0;  // 10-15 (loop khi đói)
+    const D0 = 15.0, D1 = 20.0;  // 15-20
+
+    // EPS: tránh vượt boundary do frame/timeupdate
+    const EPS = 0.035;
+
+    // ===== LOGIC STATE =====
+    // "A_RUN": đang chạy A (0-5) và cần chạy đủ 2 lần
+    // "BC_RUN": đang chạy nối B (5-10) rồi C (10-15) đúng 1 lần
+    // "C_LOOP": loop C (10-15) liên tục
+    // "D_RUN": chạy D (15-20) 1 lần, xong quay lại A_RUN (2 lần)
+    let state = "A_RUN";
+    let aCount = 0;          // số lần chạy xong A (0-5)
+    let feedQueued = false;  // bấm khi đang C_LOOP -> đợi hết vòng C hiện tại
+
+    function safePlay() {
+      const p = video.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    }
+
+    function gotoTime(t) {
+      // nhảy nhẹ +0.001 để tránh đứng đúng boundary
+      video.currentTime = Math.max(0, t + 0.001);
+    }
+
+    function startAFromBeginning() {
+      state = "A_RUN";
+      aCount = 0;
+      feedQueued = false;
+      gotoTime(A0);
+    }
+
+    function tick() {
+      const t = video.currentTime;
+
+      // ===== A_RUN: loop A đúng 2 lần =====
+      if (state === "A_RUN") {
+        // Nếu vì lý do gì đó t ra ngoài A, kéo về A
+        if (t < A0 - EPS || t > A1 + EPS) {
+          gotoTime(A0);
+        }
+
+        // Nếu gần hết A (0-5)
+        if (t >= A1 - EPS) {
+          aCount += 1;
+
+          if (aCount < 2) {
+            // loop lại A lần 2
+            gotoTime(A0);
+          } else {
+            // xong 2 lần A -> chạy liền B rồi C (1 lần)
+            state = "BC_RUN";
+            gotoTime(B0); // nhảy đúng đầu B để chạy liền
+          }
+        }
+      }
+
+      // ===== BC_RUN: chạy B (5-10) nối luôn C (10-15), không loop =====
+      else if (state === "BC_RUN") {
+        // để video chạy tự nhiên qua B sang C
+        // khi tới cuối C thì chuyển sang loop C
+        if (t >= C1 - EPS) {
+          state = "C_LOOP";
+          gotoTime(C0);
+        }
+      }
+
+      // ===== C_LOOP: loop C (10-15) tới khi feedQueued =====
+      else if (state === "C_LOOP") {
+        if (t < C0 - EPS || t > C1 + EPS) {
+          gotoTime(C0);
+        }
+
+        if (t >= C1 - EPS) {
+          if (feedQueued) {
+            // đã bấm -> chạy D (15-20)
+            feedQueued = false;
+            state = "D_RUN";
+            gotoTime(D0);
+          } else {
+            // loop lại C
+            gotoTime(C0);
+          }
+        }
+      }
+
+      // ===== D_RUN: chạy D (15-20) 1 lần rồi quay lại A_RUN (2 lần) =====
+      else if (state === "D_RUN") {
+        if (t >= D1 - EPS) {
+          // quay lại A và loop đủ 2 lần
+          startAFromBeginning();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // ===== FEED BUTTON =====
+    pointBtn.addEventListener("click", () => {
+      score += 10;
+      scoreVal.textContent = String(score);
+      pressEffect();
+      spawnPlus10();
+
+      if (state === "C_LOOP") {
+        // đợi hết vòng C hiện tại mới chạy D
+        feedQueued = true;
+      }
+    });
+
+    // ===== TRANSFORM =====
+    function applyTransform() {
+      const s = Number(size.value);
+      const x = Number(posX.value);
+      const y = Number(posY.value);
+
+      video.style.width = `${s}%`;
+      video.style.left = `calc(50% + ${x}%)`;
+      video.style.top  = `calc(50% + ${y}%)`;
+    }
+    size.addEventListener('input', applyTransform);
+    posX.addEventListener('input', applyTransform);
+    posY.addEventListener('input', applyTransform);
+
+    playBtn.addEventListener('click', async () => { try { await video.play(); } catch {} });
+    pauseBtn.addEventListener('click', () => video.pause());
+    toggleMuteBtn.addEventListener('click', () => {
+      muted = !muted;
+      video.muted = muted;
+    });
+
+    // ===== INIT =====
+    applyTransform();
+    video.muted = muted;
+
+    video.addEventListener("loadedmetadata", () => {
+      startAFromBeginning();
+      safePlay();
+      requestAnimationFrame(tick);
+    }, { once: true });
+  </script>
+</body>
+</html>
