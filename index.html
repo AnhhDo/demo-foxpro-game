@@ -88,10 +88,13 @@
 
     .png-btn {
       position: absolute;
+      top: 18px;
+      /* move to top */
       right: 18px;
-      bottom: 120px;
+      /* keep right aligned */
+      bottom: auto;
+      /* disable bottom */
       width: clamp(84px, 18vw, 140px);
-      /* responsive button size */
       height: clamp(84px, 18vw, 140px);
       border: none;
       background: transparent;
@@ -226,7 +229,7 @@
     <button class="png-btn" id="pointBtn" aria-label="Cộng điểm">
       <img src="./assets/Buton.png" alt="Cộng điểm" />
     </button>
-    <!-- 1 video gộp 20s -->
+
     <video id="foxVideo" src="./assets/FoxTrue.webm" autoplay muted playsinline preload="auto"></video>
 
     <div class="controls">
