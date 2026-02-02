@@ -1,25 +1,53 @@
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Fox App</title>
   <style>
-    :root { color-scheme: light dark; }
-    body{
-      margin:0; padding:16px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      display:flex; justify-content:center;
+    :root {
+      color-scheme: light dark;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      min-height: 100svh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
+    }
+
+    /* Responsive stage: keep the same aspect ratio as your design (1024 x 1820) */
     .app {
-      width: 1024px;
-      height: 1820px;
       position: relative;
-      border: 1px solid rgba(127,127,127,.35);
+      width: min(100vw, 520px);
+      /* cap on big screens */
+      aspect-ratio: 1024 / 1820;
+      /* keeps layout consistent */
+      height: auto;
+      /* derived from aspect ratio */
+      border: 1px solid rgba(127, 127, 127, .35);
       border-radius: 16px;
       overflow: hidden;
       background: #111;
+      touch-action: manipulation;
+    }
+
+    /* If you want it to use full width on phones */
+    @media (max-width: 600px) {
+      .app {
+        width: 100vw;
+        border-radius: 0;
+        border: none;
+      }
     }
 
     .bg {
@@ -50,20 +78,21 @@
       left: 14px;
       padding: 10px 12px;
       border-radius: 12px;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(255, 255, 255, .12);
       backdrop-filter: blur(6px);
       font-weight: 700;
       user-select: none;
       z-index: 10;
     }
 
-    .png-btn{
-      position:absolute;
+    .png-btn {
+      position: absolute;
       right: 18px;
       bottom: 120px;
-      width: 140px;
-      height: 140px;
+      width: clamp(84px, 18vw, 140px);
+      /* responsive button size */
+      height: clamp(84px, 18vw, 140px);
       border: none;
       background: transparent;
       padding: 0;
@@ -72,26 +101,38 @@
       place-items: center;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
       transform: translateZ(0);
       z-index: 10;
     }
 
-    .png-btn img{
+    .png-btn img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      display:block;
-      pointer-events:none;
+      display: block;
+      pointer-events: none;
     }
 
-    .png-btn.pressed{
+    .png-btn.pressed {
       animation: pressPop 180ms ease-out;
     }
-    @keyframes pressPop{
-      0%   { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
-      60%  { transform: scale(0.92); filter: drop-shadow(0 0 18px rgba(255,255,255,.35)); }
-      100% { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
+
+    @keyframes pressPop {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+      }
+
+      60% {
+        transform: scale(0.92);
+        filter: drop-shadow(0 0 18px rgba(255, 255, 255, .35));
+      }
+
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+      }
     }
 
     .float-plus {
@@ -101,53 +142,81 @@
       font-weight: 800;
       font-size: 26px;
       color: #fff;
-      text-shadow: 0 6px 18px rgba(0,0,0,.55);
+      text-shadow: 0 6px 18px rgba(0, 0, 0, .55);
       pointer-events: none;
       user-select: none;
       animation: floatUp 650ms ease-out forwards;
       z-index: 10;
     }
-    @keyframes floatUp{
-      0%   { transform: translateY(0) scale(0.95); opacity: 0; }
-      15%  { opacity: 1; }
-      100% { transform: translateY(-70px) scale(1.08); opacity: 0; }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0.95);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-70px) scale(1.08);
+        opacity: 0;
+      }
     }
 
-    .controls{
-      position:absolute;
-      left:12px;
-      right:12px;
-      bottom:12px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      padding:10px;
-      border-radius:12px;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.12);
+    .controls {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(255, 255, 255, .12);
       backdrop-filter: blur(6px);
       z-index: 10;
     }
 
-    button{
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.18);
-      background:transparent;
-      cursor:pointer;
-      color:inherit;
+    button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: transparent;
+      cursor: pointer;
+      color: inherit;
     }
-    button:hover{ opacity:.9; }
 
-    label{ font-size:12px; opacity:.9; }
-    input[type="range"]{ width: 160px; }
-    .spacer{ flex: 1; }
+    button:hover {
+      opacity: .9;
+    }
 
-    @media (max-width: 1100px){
-      .app { transform: scale(.55); transform-origin: top center; }
+    label {
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    input[type="range"] {
+      width: 160px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* Remove your old scaling hack */
+    @media (max-width: 1100px) {
+      .app {
+        transform: none;
+      }
     }
   </style>
+
 </head>
+
 <body>
 
   <div class="app" id="app">
@@ -215,8 +284,8 @@
     }
 
     // ===== TIMELINE (20s, mỗi đoạn 5s) =====
-    const A0 = 0.0,  A1 = 5.0;   // 0-5
-    const B0 = 5.0,  B1 = 10.0;  // 5-10
+    const A0 = 0.0, A1 = 5.0;   // 0-5
+    const B0 = 5.0, B1 = 10.0;  // 5-10
     const C0 = 10.0, C1 = 15.0;  // 10-15 (loop khi đói)
     const D0 = 15.0, D1 = 20.0;  // 15-20
 
@@ -234,7 +303,7 @@
 
     function safePlay() {
       const p = video.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (p && typeof p.catch === "function") p.catch(() => { });
     }
 
     function gotoTime(t) {
@@ -335,13 +404,13 @@
 
       video.style.width = `${s}%`;
       video.style.left = `calc(50% + ${x}%)`;
-      video.style.top  = `calc(50% + ${y}%)`;
+      video.style.top = `calc(50% + ${y}%)`;
     }
     size.addEventListener('input', applyTransform);
     posX.addEventListener('input', applyTransform);
     posY.addEventListener('input', applyTransform);
 
-    playBtn.addEventListener('click', async () => { try { await video.play(); } catch {} });
+    playBtn.addEventListener('click', async () => { try { await video.play(); } catch { } });
     pauseBtn.addEventListener('click', () => video.pause());
     toggleMuteBtn.addEventListener('click', () => {
       muted = !muted;
@@ -359,4 +428,5 @@
     }, { once: true });
   </script>
 </body>
+
 </html>
