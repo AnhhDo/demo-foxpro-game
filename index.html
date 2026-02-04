@@ -6,13 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Fox App</title>
   <style>
-    :root {
-      color-scheme: light dark;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -25,15 +20,11 @@
       padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
     }
 
-    /* Responsive stage: keep the same aspect ratio as your design (1024 x 1820) */
     .app {
       position: relative;
       width: min(100vw, 520px);
-      /* cap on big screens */
       aspect-ratio: 1024 / 1820;
-      /* keeps layout consistent */
       height: auto;
-      /* derived from aspect ratio */
       border: 1px solid rgba(127, 127, 127, .35);
       border-radius: 16px;
       overflow: hidden;
@@ -41,13 +32,8 @@
       touch-action: manipulation;
     }
 
-    /* If you want it to use full width on phones */
     @media (max-width: 600px) {
-      .app {
-        width: 100vw;
-        border-radius: 0;
-        border: none;
-      }
+      .app { width: 100vw; border-radius: 0; border: none; }
     }
 
     .bg {
@@ -89,11 +75,8 @@
     .png-btn {
       position: absolute;
       top: 18px;
-      /* move to top */
       right: 18px;
-      /* keep right aligned */
       bottom: auto;
-      /* disable bottom */
       width: clamp(84px, 18vw, 140px);
       height: clamp(84px, 18vw, 140px);
       border: none;
@@ -117,25 +100,12 @@
       pointer-events: none;
     }
 
-    .png-btn.pressed {
-      animation: pressPop 180ms ease-out;
-    }
+    .png-btn.pressed { animation: pressPop 180ms ease-out; }
 
     @keyframes pressPop {
-      0% {
-        transform: scale(1);
-        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
-      }
-
-      60% {
-        transform: scale(0.92);
-        filter: drop-shadow(0 0 18px rgba(255, 255, 255, .35));
-      }
-
-      100% {
-        transform: scale(1);
-        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
-      }
+      0% { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45)); }
+      60% { transform: scale(0.92); filter: drop-shadow(0 0 18px rgba(255, 255, 255, .35)); }
+      100% { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45)); }
     }
 
     .float-plus {
@@ -153,19 +123,9 @@
     }
 
     @keyframes floatUp {
-      0% {
-        transform: translateY(0) scale(0.95);
-        opacity: 0;
-      }
-
-      15% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translateY(-70px) scale(1.08);
-        opacity: 0;
-      }
+      0% { transform: translateY(0) scale(0.95); opacity: 0; }
+      15% { opacity: 1; }
+      100% { transform: translateY(-70px) scale(1.08); opacity: 0; }
     }
 
     .controls {
@@ -193,44 +153,28 @@
       color: inherit;
     }
 
-    button:hover {
-      opacity: .9;
-    }
+    button:hover { opacity: .9; }
 
-    label {
-      font-size: 12px;
-      opacity: .9;
-    }
+    label { font-size: 12px; opacity: .9; }
+    input[type="range"] { width: 160px; }
+    .spacer { flex: 1; }
 
-    input[type="range"] {
-      width: 160px;
-    }
-
-    .spacer {
-      flex: 1;
-    }
-
-    /* Remove your old scaling hack */
     @media (max-width: 1100px) {
-      .app {
-        transform: none;
-      }
+      .app { transform: none; }
     }
   </style>
-
 </head>
 
 <body>
-
   <div class="app" id="app">
-    <div class="bg"></div>
+    <div id="bg" class="bg"></div>
 
     <div class="score">Điểm cáo: <span id="scoreVal">0</span></div>
     <button class="png-btn" id="pointBtn" aria-label="Cộng điểm">
       <img src="./assets/Buton.png" alt="Cộng điểm" />
     </button>
 
-    <video id="foxVideo" src="./assets/FoxTrue.webm" autoplay muted playsinline preload="auto"></video>
+    <video id="foxVideo" autoplay muted playsinline preload="auto"></video>
 
     <div class="controls">
       <button id="playBtn">Play</button>
@@ -254,6 +198,7 @@
   </div>
 
   <script>
+    const bg = document.getElementById('bg');
     const app = document.getElementById('app');
     const video = document.getElementById('foxVideo');
 
@@ -271,6 +216,42 @@
     let score = 0;
     let muted = true;
 
+    // Track current "level" so we don't reload the same video every click
+    let currentLevel = null;
+
+    function getLevel(score) {
+      // You currently use Level 1 (<50) and Level 3 (>=50)
+      return score < 50 ? 1 : 3;
+    }
+
+    function safePlay() {
+      const p = video.play();
+      if (p && typeof p.catch === "function") p.catch(() => { });
+    }
+
+    function updateScence() {
+      const nextLevel = getLevel(score);
+
+      // Update background (cheap)
+      bg.style.backgroundImage = `url('./assets/Room_Level_${nextLevel}.png')`;
+
+      // Only reload video when the level changes (prevents flashing)
+      if (nextLevel === currentLevel) return;
+      currentLevel = nextLevel;
+
+      const nextVideoSrc =
+        nextLevel === 1 ? "./assets/FoxTrue.webm" : "./assets/FoxFuture.webm";
+
+      video.src = nextVideoSrc;
+      video.load();
+
+      // Re-init timeline once the new video metadata is ready
+      video.onloadedmetadata = () => {
+        startAFromBeginning();
+        safePlay();
+      };
+    }
+
     function spawnPlus10() {
       const el = document.createElement('div');
       el.className = 'float-plus';
@@ -278,6 +259,7 @@
       app.appendChild(el);
       el.addEventListener('animationend', () => el.remove());
     }
+
     function pressEffect() {
       pointBtn.classList.remove('pressed');
       void pointBtn.offsetWidth;
@@ -285,30 +267,18 @@
     }
 
     // ===== TIMELINE (20s, mỗi đoạn 5s) =====
-    const A0 = 0.0, A1 = 5.0;   // 0-5
-    const B0 = 5.0, B1 = 10.0;  // 5-10
+    const A0 = 0.0, A1 = 5.0;    // 0-5
+    const B0 = 5.0, B1 = 10.0;   // 5-10
     const C0 = 10.0, C1 = 15.0;  // 10-15 (loop khi đói)
     const D0 = 15.0, D1 = 20.0;  // 15-20
 
-    // EPS: tránh vượt boundary do frame/timeupdate
     const EPS = 0.035;
 
-    // ===== LOGIC STATE =====
-    // "A_RUN": đang chạy A (0-5) và cần chạy đủ 2 lần
-    // "BC_RUN": đang chạy nối B (5-10) rồi C (10-15) đúng 1 lần
-    // "C_LOOP": loop C (10-15) liên tục
-    // "D_RUN": chạy D (15-20) 1 lần, xong quay lại A_RUN (2 lần)
     let state = "A_RUN";
-    let aCount = 0;          // số lần chạy xong A (0-5)
-    let feedQueued = false;  // bấm khi đang C_LOOP -> đợi hết vòng C hiện tại
-
-    function safePlay() {
-      const p = video.play();
-      if (p && typeof p.catch === "function") p.catch(() => { });
-    }
+    let aCount = 0;
+    let feedQueued = false;
 
     function gotoTime(t) {
-      // nhảy nhẹ +0.001 để tránh đứng đúng boundary
       video.currentTime = Math.max(0, t + 0.001);
     }
 
@@ -322,61 +292,37 @@
     function tick() {
       const t = video.currentTime;
 
-      // ===== A_RUN: loop A đúng 2 lần =====
       if (state === "A_RUN") {
-        // Nếu vì lý do gì đó t ra ngoài A, kéo về A
-        if (t < A0 - EPS || t > A1 + EPS) {
-          gotoTime(A0);
-        }
+        if (t < A0 - EPS || t > A1 + EPS) gotoTime(A0);
 
-        // Nếu gần hết A (0-5)
         if (t >= A1 - EPS) {
           aCount += 1;
-
           if (aCount < 2) {
-            // loop lại A lần 2
             gotoTime(A0);
           } else {
-            // xong 2 lần A -> chạy liền B rồi C (1 lần)
             state = "BC_RUN";
-            gotoTime(B0); // nhảy đúng đầu B để chạy liền
+            gotoTime(B0);
           }
         }
-      }
-
-      // ===== BC_RUN: chạy B (5-10) nối luôn C (10-15), không loop =====
-      else if (state === "BC_RUN") {
-        // để video chạy tự nhiên qua B sang C
-        // khi tới cuối C thì chuyển sang loop C
+      } else if (state === "BC_RUN") {
         if (t >= C1 - EPS) {
           state = "C_LOOP";
           gotoTime(C0);
         }
-      }
-
-      // ===== C_LOOP: loop C (10-15) tới khi feedQueued =====
-      else if (state === "C_LOOP") {
-        if (t < C0 - EPS || t > C1 + EPS) {
-          gotoTime(C0);
-        }
+      } else if (state === "C_LOOP") {
+        if (t < C0 - EPS || t > C1 + EPS) gotoTime(C0);
 
         if (t >= C1 - EPS) {
           if (feedQueued) {
-            // đã bấm -> chạy D (15-20)
             feedQueued = false;
             state = "D_RUN";
             gotoTime(D0);
           } else {
-            // loop lại C
             gotoTime(C0);
           }
         }
-      }
-
-      // ===== D_RUN: chạy D (15-20) 1 lần rồi quay lại A_RUN (2 lần) =====
-      else if (state === "D_RUN") {
+      } else if (state === "D_RUN") {
         if (t >= D1 - EPS) {
-          // quay lại A và loop đủ 2 lần
           startAFromBeginning();
         }
       }
@@ -384,15 +330,15 @@
       requestAnimationFrame(tick);
     }
 
-    // ===== FEED BUTTON =====
     pointBtn.addEventListener("click", () => {
       score += 10;
       scoreVal.textContent = String(score);
       pressEffect();
       spawnPlus10();
 
+      updateScence();
+
       if (state === "C_LOOP") {
-        // đợi hết vòng C hiện tại mới chạy D
         feedQueued = true;
       }
     });
@@ -407,6 +353,7 @@
       video.style.left = `calc(50% + ${x}%)`;
       video.style.top = `calc(50% + ${y}%)`;
     }
+
     size.addEventListener('input', applyTransform);
     posX.addEventListener('input', applyTransform);
     posY.addEventListener('input', applyTransform);
@@ -422,11 +369,11 @@
     applyTransform();
     video.muted = muted;
 
-    video.addEventListener("loadedmetadata", () => {
-      startAFromBeginning();
-      safePlay();
-      requestAnimationFrame(tick);
-    }, { once: true });
+    // ✅ Set initial bg+video for score=0 (and start playback when ready)
+    updateScence();
+
+    // ✅ Start the tick loop once (it will control playback after metadata loads)
+    requestAnimationFrame(tick);
   </script>
 </body>
 
