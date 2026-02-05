@@ -3,7 +3,9 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+
   <title>Fox App</title>
   <style>
     :root {
@@ -36,23 +38,23 @@
       align-items: center;
 
       padding:
-        calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-
+        calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
       box-sizing: border-box;
     }
 
     /* ===== APP GỐC (TỈ LỆ 9:16) ===== */
     .app {
-      width: min(100vw, 520px);
-      aspect-ratio: 1024 / 1820;
-      height: auto;
-      border: 1px solid rgba(127, 127, 127, .35);
+      width: 1080px;
+      height: 1920px;
       position: relative;
       border-radius: 16px;
       overflow: hidden;
       background: #111;
-flex: none;
-      transform-origin: center center;
+
+      flex: none;
+      /* IMPORTANT: stop flexbox resizing */
+      transform-origin: center;
+      /* scaling anchor */
       will-change: transform;
     }
 
@@ -277,27 +279,36 @@ flex: none;
       return { w: window.innerWidth, h: window.innerHeight };
     }
 
-    function scaleApp() {
-      const appEl = document.getElementById('app');
+    function layout() {
+      // real phone height (fix 100vh)
+      const realVH = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${realVH}px`);
 
+      // scale canvas
+      const appEl = document.getElementById('app');
       const { w: vw, h: vh } = getViewportSize();
 
-      const usableW = Math.max(1, vw - 32);
-      const usableH = Math.max(1, vh - 32);
+      // must match your .viewport padding: 12px left + 12px right = 24 (same for top/bottom)
+      const usableW = Math.max(1, vw - 24);
+      const usableH = Math.max(1, vh - 24);
 
       const scale = Math.min(usableW / DESIGN_W, usableH / DESIGN_H);
       appEl.style.transform = `scale(${Math.min(scale, 1)})`;
     }
 
-    window.addEventListener('resize', scaleApp);
-    window.addEventListener('orientationchange', scaleApp);
+    window.addEventListener('resize', layout);
+    window.addEventListener('orientationchange', layout);
 
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', scaleApp);
-      window.visualViewport.addEventListener('scroll', scaleApp);
+      window.visualViewport.addEventListener('resize', layout);
+      window.visualViewport.addEventListener('scroll', layout);
     }
 
-    scaleApp();
+    layout();
+
+
+
+
 
     function updateRealVH() {
       const vh = window.innerHeight * 0.01;
