@@ -43,11 +43,15 @@
 
     /* ===== APP GỐC (TỈ LỆ 9:16) ===== */
     .app {
+      width: min(100vw, 520px);
+      aspect-ratio: 1024 / 1820;
+      height: auto;
+      border: 1px solid rgba(127, 127, 127, .35);
       position: relative;
       border-radius: 16px;
       overflow: hidden;
       background: #111;
-
+flex: none;
       transform-origin: center center;
       will-change: transform;
     }
