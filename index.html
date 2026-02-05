@@ -3,37 +3,45 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               minimum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
   <title>Fox App</title>
   <style>
-    :root { color-scheme: light dark; }
+    :root {
+      color-scheme: light dark;
+      --vh: 1vh;
+    }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
     }
 
-    body{
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: #000;
       overflow: hidden;
+      height: calc(var(--vh) * 100);
     }
 
     /* ===== VIEWPORT SCALE (SAFE AREA) ===== */
-    .viewport{
+    .viewport {
       position: fixed;
       inset: 0;
+      height: calc(var(--vh) * 100);
       display: flex;
       justify-content: center;
       align-items: center;
 
       padding:
-        calc(16px + env(safe-area-inset-top))
-        calc(16px + env(safe-area-inset-right))
-        calc(16px + env(safe-area-inset-bottom))
-        calc(16px + env(safe-area-inset-left));
+        calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
 
       box-sizing: border-box;
     }
@@ -52,7 +60,7 @@
     }
 
     /* ===== BACKGROUND: 2 LỚP CHỒNG NHAU (KHÔNG NHÁY) ===== */
-    .bg-layer{
+    .bg-layer {
       position: absolute;
       inset: 0;
       background-size: cover;
@@ -63,7 +71,10 @@
       transition: opacity 240ms ease;
       will-change: opacity;
     }
-    .bg-layer.active { opacity: 1; }
+
+    .bg-layer.active {
+      opacity: 1;
+    }
 
     /* ===== VIDEO: 2 LỚP CHỒNG NHAU (KHÔNG NHÁY) ===== */
     .fox-video {
@@ -82,30 +93,39 @@
       transition: opacity 240ms ease;
       will-change: opacity;
     }
-    .fox-video.active { opacity: 1; }
+
+    .fox-video.active {
+      opacity: 1;
+    }
 
     /* ===== HUD SCORE ===== */
     .score {
       position: absolute;
-      top: 14px;
-      left: 14px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.12);
+      top: 24px;
+      left: 24px;
+
+      padding: 18px 22px;
+      border-radius: 18px;
+
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(255, 255, 255, .12);
       backdrop-filter: blur(6px);
-      font-weight: 700;
+
+      font-weight: 600;
+      font-size: 36px;
+      letter-spacing: 1px;
+
       user-select: none;
       z-index: 10;
     }
 
     /* ===== BUTTON PNG ===== */
-    .png-btn{
-      position:absolute;
-      right: 18px;
-      bottom: 120px;
-      width: 140px;
-      height: 140px;
+    .png-btn {
+      position: absolute;
+      top: 10px;
+      right: 24px;
+      width: 150px;
+      height: 150px;
       border: none;
       background: transparent;
       padding: 0;
@@ -114,24 +134,36 @@
       place-items: center;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
       z-index: 10;
     }
 
-    .png-btn img{
+    .png-btn img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      pointer-events:none;
+      pointer-events: none;
     }
 
-    .png-btn.pressed{
+    .png-btn.pressed {
       animation: pressPop 180ms ease-out;
     }
-    @keyframes pressPop{
-      0%   { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
-      60%  { transform: scale(0.92); filter: drop-shadow(0 0 18px rgba(255,255,255,.35)); }
-      100% { transform: scale(1); filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
+
+    @keyframes pressPop {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+      }
+
+      60% {
+        transform: scale(0.92);
+        filter: drop-shadow(0 0 18px rgba(255, 255, 255, .35));
+      }
+
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45));
+      }
     }
 
     .float-plus {
@@ -141,38 +173,58 @@
       font-weight: 800;
       font-size: 26px;
       color: #fff;
-      text-shadow: 0 6px 18px rgba(0,0,0,.55);
+      text-shadow: 0 6px 18px rgba(0, 0, 0, .55);
       pointer-events: none;
       user-select: none;
       animation: floatUp 650ms ease-out forwards;
       z-index: 10;
     }
-    @keyframes floatUp{
-      0%   { transform: translateY(0) scale(0.95); opacity: 0; }
-      15%  { opacity: 1; }
-      100% { transform: translateY(-70px) scale(1.08); opacity: 0; }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(0.95);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-70px) scale(1.08);
+        opacity: 0;
+      }
     }
 
     /* ===== CONTROLS ===== */
-    .controls{
-      position:absolute;
-      left:12px;
-      right:12px;
-      bottom:12px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      padding:10px;
-      border-radius:12px;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.12);
+    .controls {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(255, 255, 255, .12);
       backdrop-filter: blur(6px);
       z-index: 10;
     }
 
-    .spacer{ flex: 1; }
-    label{ font-size:12px; opacity:.9; }
-    input[type="range"]{ width: 160px; }
+    .spacer {
+      flex: 1;
+    }
+
+    label {
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    input[type="range"] {
+      width: 160px;
+    }
   </style>
 </head>
 
@@ -181,18 +233,18 @@
     <div class="app" id="app">
 
       <!-- 2 BACKGROUND LAYER -->
-      <div id="bgA" class="bg-layer active" style='background-image:url("./assets/Room_1.png")'></div>
-      <div id="bgB" class="bg-layer" style='background-image:url("./assets/Room_1.png")'></div>
+      <div id="bgA" class="bg-layer active" style='background-image:url("./assets/Room_Level_1.png")'></div>
+      <div id="bgB" class="bg-layer" style='background-image:url("./assets/Room_Level_1.png")'></div>
 
       <div class="score">Điểm cáo: <span id="scoreVal">0</span></div>
+      <button class="png-btn" id="pointBtn" aria-label="Cộng điểm">
+        <img src="./assets/Buton.png" alt="Cộng điểm" />
+      </button>
 
       <!-- 2 VIDEO LAYER -->
-      <video id="foxVideoA" class="fox-video active" src="Photo/Person/FoxTrue.webm" autoplay muted playsinline preload="auto"></video>
+      <video id="foxVideoA" class="fox-video active" src="./assets/FoxTrue.webm" autoplay muted playsinline
+        preload="auto"></video>
       <video id="foxVideoB" class="fox-video" src="" autoplay muted playsinline preload="auto"></video>
-
-      <button class="png-btn" id="pointBtn" aria-label="Cộng điểm">
-        <img src="Photo/Person/Buton.png" alt="Cộng điểm" />
-      </button>
 
       <div class="controls">
         <button id="playBtn">Play</button>
@@ -250,6 +302,21 @@
 
     scaleApp();
 
+    function updateRealVH() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    window.addEventListener('resize', updateRealVH);
+    window.addEventListener('orientationchange', updateRealVH);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateRealVH);
+      window.visualViewport.addEventListener('scroll', updateRealVH);
+    }
+
+    updateRealVH();
+
     // ===== MAIN =====
     const app = document.getElementById('app');
 
@@ -293,13 +360,13 @@
     }
 
     // ===== LEVEL UP CONFIG (GIỮ NGUYÊN LINK CỦA BẠN) =====
-    const LEVEL_SCORE = 100;
+    const LEVEL_SCORE = 50;
 
-    const DEFAULT_BG = './assets/Room_1.png';
-    const NEW_BG     = './Photo/Person/Room_level_3.png';
+    const DEFAULT_BG = './assets/Room_Level_1.png';
+    const NEW_BG = './assets/Room_Level_3.png';
 
-    const DEFAULT_VIDEO = 'Photo/Person/FoxTrue.webm';
-    const NEW_VIDEO     = 'Photo/Person/FoxFuture.webm';
+    const DEFAULT_VIDEO = './assets/FoxTrue.webm';
+    const NEW_VIDEO = './assets/FoxFuture.webm';
 
     // preload ảnh để đổi nền mượt
     (() => {
@@ -313,17 +380,17 @@
     }
     function safePlay(v) {
       const p = v.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (p && typeof p.catch === "function") p.catch(() => { });
     }
 
-    function swapBgRefs(){
+    function swapBgRefs() {
       const t = activeBg; activeBg = idleBg; idleBg = t;
     }
-    function swapVideoRefs(){
+    function swapVideoRefs() {
       const t = activeVideo; activeVideo = idleVideo; idleVideo = t;
     }
 
-    async function swapBackgroundNoFlicker(newBgUrl){
+    async function swapBackgroundNoFlicker(newBgUrl) {
       // set bg vào lớp idle trước
       idleBg.style.backgroundImage = `url("${newBgUrl}")`;
       // force reflow để chắc chắn browser áp style
@@ -341,7 +408,7 @@
 
     let currentVideoUrl = DEFAULT_VIDEO;
 
-    async function swapVideoNoFlicker(newVideoUrl){
+    async function swapVideoNoFlicker(newVideoUrl) {
       if (currentVideoUrl === newVideoUrl) return;
 
       const keepTime = activeVideo.currentTime || 0;
@@ -359,7 +426,7 @@
         idleVideo.addEventListener('canplay', done, { once: true });
       });
 
-      try { idleVideo.currentTime = keepTime; } catch {}
+      try { idleVideo.currentTime = keepTime; } catch { }
       safePlay(idleVideo);
 
       // crossfade
@@ -368,7 +435,7 @@
 
       await new Promise(r => setTimeout(r, 260));
 
-      try { activeVideo.pause(); } catch {}
+      try { activeVideo.pause(); } catch { }
       swapVideoRefs();
       currentVideoUrl = newVideoUrl;
 
@@ -376,7 +443,7 @@
     }
 
     let leveledUp = false;
-    async function levelUpIfNeeded(){
+    async function levelUpIfNeeded() {
       if (leveledUp) return;
       if (score < LEVEL_SCORE) return;
       leveledUp = true;
@@ -399,18 +466,18 @@
     let aCount = 0;
     let feedQueued = false;
 
-    function gotoTime(t){
-      try { activeVideo.currentTime = Math.max(0, t + 0.001); } catch {}
+    function gotoTime(t) {
+      try { activeVideo.currentTime = Math.max(0, t + 0.001); } catch { }
     }
 
-    function startAFromBeginning(){
+    function startAFromBeginning() {
       state = "A_RUN";
       aCount = 0;
       feedQueued = false;
       gotoTime(A0);
     }
 
-    function tick(){
+    function tick() {
       const t = activeVideo.currentTime || 0;
 
       if (state === "A_RUN") {
@@ -464,7 +531,7 @@
       if (state === "C_LOOP") feedQueued = true;
     });
 
-    function applyTransform(){
+    function applyTransform() {
       const s = Number(size.value);
       const x = Number(posX.value);
       const y = Number(posY.value);
@@ -472,7 +539,7 @@
       [vA, vB].forEach(v => {
         v.style.width = `${s}%`;
         v.style.left = `calc(50% + ${x}%)`;
-        v.style.top  = `calc(50% + ${y}%)`;
+        v.style.top = `calc(50% + ${y}%)`;
       });
     }
 
@@ -480,7 +547,7 @@
     posX.addEventListener('input', applyTransform);
     posY.addEventListener('input', applyTransform);
 
-    playBtn.addEventListener('click', async () => { try { await activeVideo.play(); } catch {} });
+    playBtn.addEventListener('click', async () => { try { await activeVideo.play(); } catch { } });
     pauseBtn.addEventListener('click', () => activeVideo.pause());
     toggleMuteBtn.addEventListener('click', () => {
       muted = !muted;
